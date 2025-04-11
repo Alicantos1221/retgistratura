@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Регистрация - Медицинский Центр{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <h2>Регистрация</h2>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <form method="post" class="register-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username">Имя пользователя:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password1">Пароль:</label>
+            <input type="password" id="password1" name="password1" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password2">Подтверждение пароля:</label>
+            <input type="password" id="password2" name="password2" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="role">Роль:</label>
+            <select id="role" name="role" required onchange="toggleFields()">
+                <option value="">Выберите роль</option>
+                <option value="PATIENT">Пациент</option>
+                <option value="DOCTOR">Врач</option>
+            </select>
+        </div>
+        
+        <div id="patient-fields" style="display: none;">
+            <div class="form-group">
+                <label for="last_name">Фамилия:</label>
+                <input type="text" id="last_name" name="last_name">
+            </div>
+            
+            <div class="form-group">
+                <label for="first_name">Имя:</label>
+                <input type="text" id="first_name" name="first_name">
+            </div>
+            
+            <div class="form-group">
+                <label for="middle_name">Отчество:</label>
+                <input type="text" id="middle_name" name="middle_name">
+            </div>
+            
+            <div class="form-group">
+                <label for="birth_date">Дата рождения:</label>
+                <input type="date" id="birth_date" name="birth_date">
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Телефон:</label>
+                <input type="tel" id="phone" name="phone">
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Адрес:</label>
+                <input type="text" id="address" name="address">
+            </div>
+            
+            <div class="form-group">
+                <label for="insurance_number">Номер страхового полиса:</label>
+                <input type="text" id="insurance_number" name="insurance_number">
+            </div>
+        </div>
+        
+        <div id="doctor-fields" style="display: none;">
+            <div class="form-group">
+                <label for="doctor_last_name">Фамилия:</label>
+                <input type="text" id="doctor_last_name" name="doctor_last_name">
+            </div>
+            
+            <div class="form-group">
+                <label for="doctor_first_name">Имя:</label>
+                <input type="text" id="doctor_first_name" name="doctor_first_name">
+            </div>
+            
+            <div class="form-group">
+                <label for="doctor_middle_name">Отчество:</label>
+                <input type="text" id="doctor_middle_name" name="doctor_middle_name">
+            </div>
+            
+            <div class="form-group">
+                <label for="specialization">Специализация:</label>
+                <input type="text" id="specialization" name="specialization">
+            </div>
+            
+            <div class="form-group">
+                <label for="experience_years">Стаж (лет):</label>
+                <input type="number" id="experience_years" name="experience_years" min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="department">Отделение:</label>
+                <select id="department" name="department">
+                    <option value="">Выберите отделение</option>
+                    {% for department in departments %}
+                    <option value="{{ department.code }}">{{ department.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <button type="submit" class="submit-btn">Зарегистрироваться</button>
+    </form>
+    
+    <div class="login-link">
+        <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+    </div>
+</div>
+
+<style>
+    .register-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .register-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .form-group label {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .form-group input,
+    .form-group select {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+    
+    .submit-btn {
+        background: var(--primary-color);
+        color: white;
+        padding: 1rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    
+    .submit-btn:hover {
+        background: var(--primary-color-dark);
+    }
+    
+    .messages {
+        margin-bottom: 1rem;
+    }
+    
+    .message {
+        padding: 1rem;
+        border-radius: 5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .message.error {
+        background: #ffe6e6;
+        color: #d63031;
+    }
+    
+    .message.success {
+        background: #e6ffe6;
+        color: #00b894;
+    }
+    
+    .login-link {
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .login-link a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<script>
+    function toggleFields() {
+        const role = document.getElementById('role').value;
+        const patientFields = document.getElementById('patient-fields');
+        const doctorFields = document.getElementById('doctor-fields');
+        
+        if (role === 'PATIENT') {
+            patientFields.style.display = 'block';
+            doctorFields.style.display = 'none';
+        } else if (role === 'DOCTOR') {
+            patientFields.style.display = 'none';
+            doctorFields.style.display = 'block';
+        } else {
+            patientFields.style.display = 'none';
+            doctorFields.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %} 

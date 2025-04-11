@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Панель администратора - Медицинский Центр{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Панель администратора</h1>
+    </div>
+
+    <div class="admin-grid">
+        <div class="admin-card">
+            <div class="card-header">
+                <h2>Отделения</h2>
+                <span class="card-count">{{ departments_count }}</span>
+            </div>
+            <p class="card-description">Управление отделениями медицинского центра</p>
+            <a href="{% url 'admin:accounts_department_changelist' %}" class="btn btn-primary">Управление отделениями</a>
+        </div>
+
+        <div class="admin-card">
+            <div class="card-header">
+                <h2>Врачи</h2>
+                <span class="card-count">{{ doctors_count }}</span>
+            </div>
+            <p class="card-description">Управление врачами и их профилями</p>
+            <a href="{% url 'admin:accounts_doctor_changelist' %}" class="btn btn-primary">Управление врачами</a>
+        </div>
+
+        <div class="admin-card">
+            <div class="card-header">
+                <h2>Пациенты</h2>
+                <span class="card-count">{{ patients_count }}</span>
+            </div>
+            <p class="card-description">Управление пациентами и их данными</p>
+            <a href="{% url 'admin:accounts_patient_changelist' %}" class="btn btn-primary">Управление пациентами</a>
+        </div>
+
+        <div class="admin-card">
+            <div class="card-header">
+                <h2>Записи на приём</h2>
+                <span class="card-count">{{ appointments_count }}</span>
+            </div>
+            <p class="card-description">Управление записями на приём</p>
+            <a href="{% url 'admin:accounts_appointment_changelist' %}" class="btn btn-primary">Управление записями</a>
+        </div>
+
+        <div class="admin-card">
+            <div class="card-header">
+                <h2>Медицинские услуги</h2>
+                <span class="card-count">{{ services_count }}</span>
+            </div>
+            <p class="card-description">Управление медицинскими услугами и ценами</p>
+            <a href="{% url 'admin:accounts_medicalservice_changelist' %}" class="btn btn-primary">Управление услугами</a>
+        </div>
+
+        <div class="admin-card">
+            <div class="card-header">
+                <h2>Платежи</h2>
+                <span class="card-count">{{ payments_count }}</span>
+            </div>
+            <p class="card-description">Управление платежами и финансовыми операциями</p>
+            <a href="{% url 'admin:accounts_payment_changelist' %}" class="btn btn-primary">Управление платежами</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .admin-header {
+        margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+        color: var(--primary-color);
+        margin: 0;
+    }
+
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .admin-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .admin-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .card-header h2 {
+        color: var(--primary-color);
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .card-count {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .card-description {
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+    }
+
+    @media (max-width: 768px) {
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %} 

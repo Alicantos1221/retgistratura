@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная - Медицинский Центр{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Добро пожаловать в Медицинский Центр</h1>
+        <p>Профессиональная медицинская помощь в любое время</p>
+    </div>
+</div>
+
+<div class="appointment-section">
+    <h2>Запись на приём</h2>
+    <form id="appointmentForm" class="appointment-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="department">Отделение</label>
+            <select id="department" name="department" required>
+                <option value="">Выберите отделение</option>
+                {% for department in departments %}
+                <option value="{{ department.code }}">{{ department.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="doctor">Врач</label>
+            <select id="doctor" name="doctor" required>
+                <option value="">Сначала выберите отделение</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="date">Дата</label>
+            <input type="date" id="date" name="date" required min="{{ today|date:'Y-m-d' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="time">Время</label>
+            <input type="time" id="time" name="time" required>
+        </div>
+
+        <div class="form-group">
+            <label for="symptoms">Симптомы</label>
+            <textarea id="symptoms" name="symptoms" rows="3" placeholder="Опишите ваши симптомы"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Записаться на приём</button>
+    </form>
+</div>
+
+<div class="departments-section">
+    <h2>Наши отделения</h2>
+    <div class="departments-grid">
+        {% for department in departments %}
+        <div class="department-card">
+            <h3>{{ department.name }}</h3>
+            <p>{{ department.description }}</p>
+            <div class="department-info">
+                <span>Этаж: {{ department.floor }}</span>
+                <span>Кабинет: {{ department.room_number }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(30, 136, 229, 0.9), rgba(30, 136, 229, 0.9)), url('/static/images/hospital-bg.jpg');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 4rem 0;
+        text-align: center;
+        margin: -2rem -20px 2rem -20px;
+    }
+
+    .hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero-content p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    .appointment-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 3rem;
+    }
+
+    .appointment-section h2 {
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+
+    .appointment-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-group label {
+        color: var(--text-color);
+        font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+    }
+
+    .departments-section {
+        margin-bottom: 3rem;
+    }
+
+    .departments-section h2 {
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+
+    .departments-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .department-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .department-card h3 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .department-info {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const departmentSelect = document.getElementById('department');
+    const doctorSelect = document.getElementById('doctor');
+    const appointmentForm = document.getElementById('appointmentForm');
+
+    departmentSelect.addEventListener('change', function() {
+        const departmentId = this.value;
+        doctorSelect.innerHTML = '<option value="">Загрузка врачей...</option>';
+        
+        if (departmentId) {
+            fetch(`/get-doctors/?department_id=${departmentId}`)
+                .then(response => response.json())
+                .then(data => {
+                    doctorSelect.innerHTML = '<option value="">Выберите врача</option>';
+                    data.doctors.forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = doctor.id;
+                        option.textContent = `${doctor.name} - ${doctor.specialization}`;
+                        doctorSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    doctorSelect.innerHTML = '<option value="">Ошибка загрузки врачей</option>';
+                });
+        } else {
+            doctorSelect.innerHTML = '<option value="">Сначала выберите отделение</option>';
+        }
+    });
+
+    appointmentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!departmentSelect.value || !doctorSelect.value) {
+            alert('Пожалуйста, выберите отделение и врача');
+            return;
+        }
+
+        const formData = {
+            doctor_id: doctorSelect.value,
+            date: document.getElementById('date').value,
+            time: document.getElementById('time').value,
+            symptoms: document.getElementById('symptoms').value
+        };
+
+        fetch('/create-appointment/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Запись успешно создана!');
+                window.location.href = '/cabinet/';
+            } else {
+                alert(data.error || 'Произошла ошибка при создании записи');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при отправке данных');
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        .cabinet-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #222;
+            border-radius: 10px;
+        }
+
+        .profile-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 5px;
+        }
+
+        .profile-photo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-photo img {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .photo-form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .submit-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background-color: #28a745;
+        }
+
+        .error {
+            background-color: #dc3545;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #28a745;
+            border-radius: 3px;
+            margin-left: 10px;
+        }
+
+        .driver-stats {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 5px;
+        }
+
+        .trips-section {
+            margin-top: 20px;
+        }
+
+        .search-sort {
+            margin-bottom: 20px;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-form input[type="text"] {
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .search-form select {
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+
+        .table-container {
+            margin-bottom: 20px;
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-container th,
+        .table-container td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .table-container th {
+            background-color: #444;
+        }
+
+        .table-container tbody tr:nth-child(even) {
+            background-color: #333;
+        }
+
+        .table-container {
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #333;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        th {
+            background-color: #2c2c2c;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #3a3a3a;
+        }
+
+        .search-sort {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #2c2c2c;
+            border-radius: 5px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-form input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            background-color: #333;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 3px;
+        }
+
+        .search-form select {
+            padding: 8px;
+            background-color: #333;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 3px;
+        }
+
+        .driver-stats {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #2c2c2c;
+            border-radius: 5px;
+        }
+
+        .driver-stats h3 {
+            margin-top: 0;
+        }
+
+        .add-profit-form {
+            background-color: #2c2c2c;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .profit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .profit-form .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .profit-form select,
+        .profit-form input {
+            padding: 8px;
+            background-color: #333;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 3px;
+        }
+
+        .profit-form label {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .submit-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .submit-button:hover {
+            background-color: #218838;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {{ monthly_stats|json_script:"monthly-stats" }}
+</head>
+<body>
+    <div class="cabinet-container">
+        <h1>Личный кабинет</h1>
+        
+        <div class="profile-section">
+            <h2>Информация о пользователе</h2>
+            <p>Имя пользователя: {{ user.username }}</p>
+            <p>Роль: <span class="role-badge">{{ profile.get_role_display }}</span></p>
+        </div>
+
+        {% if profile.role == 'DRIVER' %}
+            <div class="profile-section">
+                <h2>Информация водителя</h2>
+                <div class="profile-photo">
+                    {% if driver.photo %}
+                        <img src="{{ driver.photo.url }}" alt="Фото водителя">
+                    {% else %}
+                        <p>Фото не загружено</p>
+                    {% endif %}
+                </div>
+
+                <form class="photo-form" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="photo" accept="image/*">
+                    <br>
+                    <button type="submit" class="submit-button">Обновить фото</button>
+                </form>
+
+                <div class="driver-stats">
+                    <h3>Статистика</h3>
+                    <p>Дата выдачи прав: {{ driver.license_issue_date }}</p>
+                    <p>Общая прибыль: {{ total_profit }} руб.</p>
+                </div>
+
+                <div class="driver-stats">
+                    <h3>Статистика выплат по месяцам</h3>
+                    <canvas id="profitChart"></canvas>
+                </div>
+
+                <div class="trips-section">
+                    <h3>Поездки</h3>
+                    
+                    <!-- Поиск и сортировка -->
+                    <div class="search-sort">
+                        <form method="GET" class="search-form">
+                            <input type="text" name="search" value="{{ search_query }}" placeholder="Поиск по городам или клиентам">
+                            <select name="sort_by">
+                                <option value="start_date" {% if sort_by == 'start_date' %}selected{% endif %}>По дате</option>
+                                <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>По рейтингу</option>
+                                <option value="cargo_weight" {% if sort_by == 'cargo_weight' %}selected{% endif %}>По весу груза</option>
+                            </select>
+                            <button type="submit" class="submit-button">Применить</button>
+                        </form>
+                    </div>
+
+                    <!-- Таблица поездок -->
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Маршрут</th>
+                                    <th>Клиент</th>
+                                    <th>Вес груза</th>
+                                    <th>Рейтинг</th>
+                                    <th>Отзыв</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trip_driver in trips %}
+                                <tr>
+                                    <td>{{ trip_driver.trip.start_date }}</td>
+                                    <td>{{ trip_driver.trip.route.departure_city }} → {{ trip_driver.trip.route.arrival_city }}</td>
+                                    <td>{{ trip_driver.trip.client.first_name }} {{ trip_driver.trip.client.last_name }}</td>
+                                    <td>{{ trip_driver.trip.cargo_weight }} кг</td>
+                                    <td>{{ trip_driver.trip.rating }}/5</td>
+                                    <td>{{ trip_driver.trip.feedback|truncatechars:50 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6">Поездки не найдены</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Таблица выплат -->
+                    <h3>История выплат</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for profit in profits %}
+                                <tr>
+                                    <td>{{ profit.date|date:"d.m.Y H:i" }}</td>
+                                    <td>{{ profit.amount }} руб.</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2">Выплаты не найдены</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if profile.role == 'CLIENT' %}
+            <div class="profile-section">
+                <h2>Информация клиента</h2>
+                <p>Здесь может быть информация о заказах клиента</p>
+            </div>
+        {% endif %}
+
+        {% if profile.role == 'ADMIN' %}
+            <div class="profile-section">
+                <h2>Панель администратора</h2>
+                
+                <!-- Форма добавления прибыли -->
+                <div class="add-profit-form">
+                    <h3>Добавить прибыль водителю</h3>
+                    <form method="POST" class="profit-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="driver">Выберите водителя:</label>
+                            <select name="driver" id="driver" required>
+                                <option value="">-- Выберите водителя --</option>
+                                {% for driver in drivers %}
+                                    <option value="{{ driver.code }}">{{ driver.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Сумма:</label>
+                            <input type="number" name="amount" id="amount" step="0.01" required>
+                        </div>
+                        <button type="submit" name="add_profit" class="submit-button">Добавить прибыль</button>
+                    </form>
+                </div>
+
+                <!-- Таблица всех выплат -->
+                <div class="profits-section">
+                    <h3>История выплат всем водителям</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Код</th>
+                                    <th>Водитель</th>
+                                    <th>Сумма</th>
+                                    <th>Дата добавления</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for profit in profits %}
+                                <tr>
+                                    <td>{{ profit.code }}</td>
+                                    <td>{{ profit.driver.name }}</td>
+                                    <td>{{ profit.amount }} руб.</td>
+                                    <td>{{ profit.date|date:"d.m.Y H:i" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4">Выплаты не найдены</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <a href="{% url 'home' %}" class="back-button">Вернуться на главную</a>
+        <a href="{% url 'export_trips' %}" class="submit-button">Выгрузить поездки в CSV</a>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('profitChart').getContext('2d');
+        const monthlyStats = JSON.parse(document.getElementById('monthly-stats').textContent);  // Получаем данные из json_script
+
+        const labels = Object.keys(monthlyStats);
+        const data = Object.values(monthlyStats);
+
+        const profitChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Прибыль по месяцам',
+                    data: data,
+                    backgroundColor: 'rgba(40, 167, 69, 0.5)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

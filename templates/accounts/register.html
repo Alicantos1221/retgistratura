@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <style>
+  body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a; 
+            color: #fff; 
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        h2 {
+            margin-bottom: 20px; 
+            text-align: center; 
+        }
+        form {
+            background-color: #333; 
+            padding: 20px;
+            border-radius: 15px; 
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7); 
+            width: 300px; 
+            text-align: left; 
+            box-sizing: border-box; 
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        input {
+            width: 270px; 
+            padding: 8px;
+            margin-bottom: 15px; 
+            border: 1px solid #444;
+            border-radius: 5px; 
+            background-color: #222; 
+            color: #fff; 
+            box-sizing: border-box; 
+        }
+        button {
+            background-color: #28a745; 
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px; 
+            cursor: pointer;
+            width: 104%; 
+            font-size: 16px; 
+        }
+        button:hover {
+            background-color: #218838; 
+        }
+        .register-link {
+            margin-top: 15px; 
+            color: #fff;
+            text-align: center; 
+            display: block; 
+        }
+        .success-message {
+            color: green;
+            text-align: center; 
+        }
+        .error-message {
+            color: red;
+            text-align: center; 
+        }
+    </style>
+</head>
+<body>
+    <h2>Регистрация</h2>
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li class="{% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                {{ message }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label for="username">Логин:</label>
+        <input type="text" name="username" id="username" required>
+        <label for="password">Пароль:</label>
+        <input type="password" name="password" id="password" required>
+        <label for="first_name">Имя:</label>
+        <input type="text" name="first_name" id="first_name" required>
+        <label for="last_name">Фамилия:</label>
+        <input type="text" name="last_name" id="last_name" required>
+        <label for="phone_number">Номер телефона:</label>
+        <input type="text" name="phone_number" id="phone_number" required>
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+    <a href="{% url 'login' %}" class="register-link">Уже есть аккаунт? Войти</a>
+</body>
+</html>
