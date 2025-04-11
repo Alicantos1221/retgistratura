@@ -1,0 +1,164 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Управление отделениями{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Управление отделениями</h1>
+    <button class="btn btn-primary" onclick="showAddDepartmentForm()">Добавить отделение</button>
+</div>
+
+<div id="addDepartmentForm" class="form-container" style="display: none;">
+    <h2>Добавить новое отделение</h2>
+    <form method="post" action="{% url 'admin_departments' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Название отделения</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea id="description" name="description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="floor">Этаж</label>
+            <input type="number" id="floor" name="floor" required>
+        </div>
+        <div class="form-group">
+            <label for="room_number">Номер кабинета</label>
+            <input type="text" id="room_number" name="room_number" required>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="button" class="btn btn-secondary" onclick="hideAddDepartmentForm()">Отмена</button>
+        </div>
+    </form>
+</div>
+
+<div class="departments-list">
+    {% for department in departments %}
+    <div class="department-card">
+        <div class="department-info">
+            <h3>{{ department.name }}</h3>
+            <p>{{ department.description|default:"Нет описания" }}</p>
+        </div>
+        <div class="department-actions">
+            <a href="{% url 'admin_edit_department' department.id %}" class="btn btn-secondary">Редактировать</a>
+            <form method="post" action="{% url 'admin_delete_department' department.id %}" class="delete-form">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить это отделение?')">Удалить</button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-message">
+        Отделения не найдены
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+    }
+
+    .form-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .departments-list {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .department-card {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .department-info h3 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .department-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .delete-form {
+        margin: 0;
+    }
+
+    .empty-message {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-light);
+    }
+
+    @media (max-width: 768px) {
+        .department-card {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .department-actions {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+</style>
+
+<script>
+    function showAddDepartmentForm() {
+        document.getElementById('addDepartmentForm').style.display = 'block';
+    }
+
+    function hideAddDepartmentForm() {
+        document.getElementById('addDepartmentForm').style.display = 'none';
+    }
+</script>
+{% endblock %} 

@@ -7,61 +7,107 @@
 <div class="admin-container">
     <div class="admin-header">
         <h1>Панель администратора</h1>
+        <div class="admin-stats">
+            <div class="stat-item">
+                <i class="fas fa-hospital"></i>
+                <span>{{ departments_count }}</span>
+                <p>Отделения</p>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-user-md"></i>
+                <span>{{ doctors_count }}</span>
+                <p>Врачи</p>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-procedures"></i>
+                <span>{{ patients_count }}</span>
+                <p>Пациенты</p>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>{{ appointments_count }}</span>
+                <p>Записи</p>
+            </div>
+        </div>
     </div>
 
     <div class="admin-grid">
         <div class="admin-card">
-            <div class="card-header">
+            <div class="card-icon">
+                <i class="fas fa-hospital"></i>
+            </div>
+            <div class="card-content">
                 <h2>Отделения</h2>
-                <span class="card-count">{{ departments_count }}</span>
+                <p>Управление отделениями медицинского центра</p>
+                <a href="{% url 'admin:accounts_department_changelist' %}" class="btn btn-primary">
+                    <i class="fas fa-cog"></i> Управление
+                </a>
             </div>
-            <p class="card-description">Управление отделениями медицинского центра</p>
-            <a href="{% url 'admin:accounts_department_changelist' %}" class="btn btn-primary">Управление отделениями</a>
         </div>
 
         <div class="admin-card">
-            <div class="card-header">
+            <div class="card-icon">
+                <i class="fas fa-user-md"></i>
+            </div>
+            <div class="card-content">
                 <h2>Врачи</h2>
-                <span class="card-count">{{ doctors_count }}</span>
+                <p>Управление врачами и их профилями</p>
+                <a href="{% url 'admin:accounts_doctor_changelist' %}" class="btn btn-primary">
+                    <i class="fas fa-cog"></i> Управление
+                </a>
             </div>
-            <p class="card-description">Управление врачами и их профилями</p>
-            <a href="{% url 'admin:accounts_doctor_changelist' %}" class="btn btn-primary">Управление врачами</a>
         </div>
 
         <div class="admin-card">
-            <div class="card-header">
+            <div class="card-icon">
+                <i class="fas fa-procedures"></i>
+            </div>
+            <div class="card-content">
                 <h2>Пациенты</h2>
-                <span class="card-count">{{ patients_count }}</span>
+                <p>Управление пациентами и их данными</p>
+                <a href="{% url 'admin:accounts_patient_changelist' %}" class="btn btn-primary">
+                    <i class="fas fa-cog"></i> Управление
+                </a>
             </div>
-            <p class="card-description">Управление пациентами и их данными</p>
-            <a href="{% url 'admin:accounts_patient_changelist' %}" class="btn btn-primary">Управление пациентами</a>
         </div>
 
         <div class="admin-card">
-            <div class="card-header">
+            <div class="card-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="card-content">
                 <h2>Записи на приём</h2>
-                <span class="card-count">{{ appointments_count }}</span>
+                <p>Управление записями на приём</p>
+                <a href="{% url 'admin:accounts_appointment_changelist' %}" class="btn btn-primary">
+                    <i class="fas fa-cog"></i> Управление
+                </a>
             </div>
-            <p class="card-description">Управление записями на приём</p>
-            <a href="{% url 'admin:accounts_appointment_changelist' %}" class="btn btn-primary">Управление записями</a>
         </div>
 
         <div class="admin-card">
-            <div class="card-header">
+            <div class="card-icon">
+                <i class="fas fa-stethoscope"></i>
+            </div>
+            <div class="card-content">
                 <h2>Медицинские услуги</h2>
-                <span class="card-count">{{ services_count }}</span>
+                <p>Управление медицинскими услугами и ценами</p>
+                <a href="{% url 'admin:accounts_medicalservice_changelist' %}" class="btn btn-primary">
+                    <i class="fas fa-cog"></i> Управление
+                </a>
             </div>
-            <p class="card-description">Управление медицинскими услугами и ценами</p>
-            <a href="{% url 'admin:accounts_medicalservice_changelist' %}" class="btn btn-primary">Управление услугами</a>
         </div>
 
         <div class="admin-card">
-            <div class="card-header">
-                <h2>Платежи</h2>
-                <span class="card-count">{{ payments_count }}</span>
+            <div class="card-icon">
+                <i class="fas fa-money-bill-wave"></i>
             </div>
-            <p class="card-description">Управление платежами и финансовыми операциями</p>
-            <a href="{% url 'admin:accounts_payment_changelist' %}" class="btn btn-primary">Управление платежами</a>
+            <div class="card-content">
+                <h2>Платежи</h2>
+                <p>Управление платежами и финансовыми операциями</p>
+                <a href="{% url 'admin:accounts_payment_changelist' %}" class="btn btn-primary">
+                    <i class="fas fa-cog"></i> Управление
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -70,15 +116,58 @@
     .admin-container {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 2rem;
     }
 
     .admin-header {
-        margin-bottom: 2rem;
+        margin-bottom: 3rem;
+        text-align: center;
     }
 
     .admin-header h1 {
         color: var(--primary-color);
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        font-weight: 600;
+    }
+
+    .admin-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-item {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
+        min-width: 150px;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-item i {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .stat-item span {
+        display: block;
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-item p {
+        color: var(--text-light);
         margin: 0;
     }
 
@@ -90,52 +179,61 @@
 
     .admin-card {
         background: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
     }
 
     .admin-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
     }
 
-    .card-header {
+    .card-icon {
+        background: var(--primary-color);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .card-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .card-content {
+        padding: 1.5rem;
+        flex-grow: 1;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
+        flex-direction: column;
     }
 
-    .card-header h2 {
+    .card-content h2 {
         color: var(--primary-color);
-        margin: 0;
+        margin: 0 0 1rem 0;
         font-size: 1.5rem;
     }
 
-    .card-count {
-        background: var(--primary-color);
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 15px;
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-
-    .card-description {
+    .card-content p {
         color: var(--text-light);
         margin-bottom: 1.5rem;
-        font-size: 0.9rem;
+        flex-grow: 1;
     }
 
     .btn {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
         padding: 0.75rem 1.5rem;
-        border-radius: 5px;
+        border-radius: 8px;
         text-decoration: none;
         font-weight: 500;
-        transition: background-color 0.2s;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
     }
 
     .btn-primary {
@@ -145,12 +243,31 @@
 
     .btn-primary:hover {
         background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .btn i {
+        font-size: 1rem;
     }
 
     @media (max-width: 768px) {
+        .admin-container {
+            padding: 1rem;
+        }
+
+        .admin-stats {
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            min-width: 120px;
+        }
+
         .admin-grid {
             grid-template-columns: 1fr;
         }
     }
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %} 

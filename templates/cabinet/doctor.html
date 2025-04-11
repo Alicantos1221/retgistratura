@@ -55,56 +55,80 @@
         </div>
 
         <div class="appointments-section">
-            <h2>Расписание приёмов</h2>
-            {% if appointments %}
-                {% for appointment in appointments %}
-                <div class="appointment-card">
-                    <div class="appointment-header">
-                        <h3>Запись #{{ appointment.code }}</h3>
-                        <span class="status-badge status-{{ appointment.status|lower }}">{{ appointment.get_status_display }}</span>
-                    </div>
-                    <div class="appointment-info">
-                        <div class="info-group">
-                            <label>Пациент:</label>
-                            <span>{{ appointment.patient.last_name }} {{ appointment.patient.first_name }} {{ appointment.patient.middle_name }}</span>
+            <div class="appointments-header">
+                <h2>Мои приёмы</h2>
+                <div class="appointments-filters">
+                    <form method="get" class="filter-form">
+                        <div class="form-group">
+                            <input type="text" name="search" placeholder="Поиск по ФИО пациента..." value="{{ search_query }}">
                         </div>
-                        <div class="info-group">
-                            <label>Дата и время:</label>
-                            <span>{{ appointment.date|date:"d.m.Y" }} {{ appointment.time|time:"H:i" }}</span>
+                        <div class="form-group">
+                            <select name="status" class="form-control">
+                                <option value="">Все статусы</option>
+                                <option value="SCHEDULED" {% if status == 'SCHEDULED' %}selected{% endif %}>Запланированные</option>
+                                <option value="COMPLETED" {% if status == 'COMPLETED' %}selected{% endif %}>Завершённые</option>
+                                <option value="CANCELLED" {% if status == 'CANCELLED' %}selected{% endif %}>Отменённые</option>
+                            </select>
                         </div>
-                        {% if appointment.symptoms %}
-                        <div class="info-group">
-                            <label>Симптомы:</label>
-                            <span>{{ appointment.symptoms }}</span>
+                        <div class="form-group">
+                            <input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" class="form-control">
                         </div>
-                        {% endif %}
-                        {% if appointment.diagnosis %}
-                        <div class="info-group">
-                            <label>Диагноз:</label>
-                            <span>{{ appointment.diagnosis }}</span>
-                        </div>
-                        {% endif %}
-                        {% if appointment.prescription %}
-                        <div class="info-group">
-                            <label>Назначения:</label>
-                            <span>{{ appointment.prescription }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% if appointment.status == 'SCHEDULED' %}
-                    <div class="appointment-actions">
-                        <button class="btn btn-primary" onclick="completeAppointment({{ appointment.code }})">
-                            Завершить приём
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Найти
                         </button>
+                        <a href="{% url 'cabinet' %}" class="btn btn-secondary">
+                            <i class="fas fa-sync"></i> Сбросить
+                        </a>
+                    </form>
+                </div>
+            </div>
+
+            <div class="appointments-list">
+                {% if appointments %}
+                    {% for appointment in appointments %}
+                    <div class="appointment-card">
+                        <div class="appointment-header">
+                            <h3>Приём #{{ appointment.code }}</h3>
+                            <span class="status-badge status-{{ appointment.status|lower }}">
+                                {{ appointment.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="appointment-info">
+                            <div class="info-group">
+                                <label>Пациент:</label>
+                                <span>{{ appointment.patient.last_name }} {{ appointment.patient.first_name }}</span>
+                            </div>
+                            <div class="info-group">
+                                <label>Дата:</label>
+                                <span>{{ appointment.date|date:"d.m.Y" }}</span>
+                            </div>
+                            <div class="info-group">
+                                <label>Время:</label>
+                                <span>{{ appointment.time }}</span>
+                            </div>
+                            {% if appointment.status == 'COMPLETED' %}
+                            <div class="info-group">
+                                <label>Диагноз:</label>
+                                <span>{{ appointment.diagnosis }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if appointment.status == 'SCHEDULED' %}
+                        <div class="appointment-actions">
+                            <button class="btn btn-success" onclick="completeAppointment({{ appointment.code }})">
+                                <i class="fas fa-check"></i> Завершить приём
+                            </button>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="empty-state">
-                    <p>На сегодня нет запланированных приёмов</p>
-                </div>
-            {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>Записи не найдены</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
@@ -268,25 +292,26 @@
     }
 
     .status-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 15px;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
         font-size: 0.9rem;
         font-weight: 500;
+        display: inline-block;
     }
 
     .status-scheduled {
-        background-color: #e3f2fd;
-        color: #1565c0;
+        background-color: var(--info-color, #17a2b8);
+        color: white;
     }
 
     .status-completed {
-        background-color: #e8f5e9;
-        color: #2e7d32;
+        background-color: var(--success-color, #28a745);
+        color: white;
     }
 
     .status-cancelled {
-        background-color: #ffebee;
-        color: #c62828;
+        background-color: var(--danger-color, #dc3545);
+        color: white;
     }
 
     .appointment-info {
@@ -379,6 +404,64 @@
         width: 100%;
         height: 300px;
         margin-bottom: 1rem;
+    }
+
+    .appointments-filters {
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .filter-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+
+    .form-control {
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--border-color);
+    }
+
+    @media (max-width: 768px) {
+        .filter-form {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 

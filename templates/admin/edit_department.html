@@ -1,0 +1,90 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Редактирование отделения{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Редактирование отделения</h1>
+</div>
+
+<div class="form-container">
+    <form method="post" action="{% url 'admin_edit_department' department.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Название отделения</label>
+            <input type="text" id="name" name="name" value="{{ department.name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea id="description" name="description" rows="3">{{ department.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="floor">Этаж</label>
+            <input type="number" id="floor" name="floor" value="{{ department.floor }}" required>
+        </div>
+        <div class="form-group">
+            <label for="room_number">Номер кабинета</label>
+            <input type="text" id="room_number" name="room_number" value="{{ department.room_number }}" required>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+            <a href="{% url 'admin_departments' %}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .admin-header {
+        margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+    }
+
+    .form-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions button,
+        .form-actions a {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %} 

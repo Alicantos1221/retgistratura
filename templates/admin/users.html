@@ -1,0 +1,133 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Управление пользователями{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Управление пользователями</h1>
+    <div class="admin-filters">
+        <form method="get" class="search-form">
+            <input type="text" name="search" placeholder="Поиск по имени..." value="{{ search_query }}">
+            <select name="role">
+                <option value="">Все роли</option>
+                {% for role_code, role_name in roles %}
+                    <option value="{{ role_code }}" {% if selected_role == role_code %}selected{% endif %}>
+                        {{ role_name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Применить</button>
+        </form>
+    </div>
+</div>
+
+<div class="users-table">
+    <table>
+        <thead>
+            <tr>
+                <th>Имя пользователя</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Роль</th>
+                <th>Дата регистрации</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user_data in users %}
+            <tr>
+                <td>{{ user_data.user.username }}</td>
+                <td>{{ user_data.user.first_name }}</td>
+                <td>{{ user_data.user.last_name }}</td>
+                <td>{{ user_data.role }}</td>
+                <td>{{ user_data.user.date_joined|date:"d.m.Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="empty-message">Пользователи не найдены</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+    }
+
+    .admin-filters {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .search-form input,
+    .search-form select {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .users-table {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+
+    tr:hover {
+        background-color: var(--primary-light);
+    }
+
+    .empty-message {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-light);
+    }
+
+    @media (max-width: 768px) {
+        .admin-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .search-form {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .search-form input,
+        .search-form select {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %} 

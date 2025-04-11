@@ -20,6 +20,12 @@ urlpatterns = [
     path('get-schedule/', views.get_schedule, name='get_schedule'),
     path('get-doctor-stats/', views.get_doctor_stats, name='get_doctor_stats'),
     path('download-doctor-stats/', views.download_doctor_stats, name='download_doctor_stats'),
+    
+    # Административные маршруты
+    path('admin/users/', views.admin_users, name='admin_users'),
+    path('admin/departments/', views.admin_departments, name='admin_departments'),
+    path('admin/departments/<int:department_id>/delete/', views.admin_delete_department, name='admin_delete_department'),
+    path('admin/departments/<int:department_id>/edit/', views.admin_edit_department, name='admin_edit_department'),
 ]
 
 if settings.DEBUG:
