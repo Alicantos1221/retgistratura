@@ -5,11 +5,11 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
-    path('login/', login_view, name='login'),
-    path('register/', register, name='register'),
-    path('logout/', logout_view, name='logout'),
-    path('', home, name='home'),
-    path('cabinet/', cabinet, name='cabinet'),
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register, name='register'),
+    path('logout/', views.logout_view, name='logout'),
+    path('', views.home, name='home'),
+    path('cabinet/', views.cabinet, name='cabinet'),
     path('get-departments/', get_departments, name='get_departments'),
     path('get-doctors/', get_doctors, name='get_doctors'),
     path('create-appointment/', create_appointment, name='create_appointment'),
