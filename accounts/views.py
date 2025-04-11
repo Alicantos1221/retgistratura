@@ -119,17 +119,58 @@ def login_view(request):
 
 @login_required
 def cabinet(request):
-    profile = UserProfile.objects.get(user=request.user)
+    try:
+        profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=request.user, role=UserRole.PATIENT)
     
     if profile.role == UserRole.PATIENT:
-        patient = Patient.objects.get(user=request.user)
-        appointments = Appointment.objects.filter(patient=patient).order_by('-date', '-time')
-        return render(request, 'cabinet/patient.html', {'patient': patient, 'appointments': appointments})
+        try:
+            patient = Patient.objects.get(user=request.user)
+            appointments = Appointment.objects.filter(patient=patient).order_by('-date', '-time')
+            return render(request, 'cabinet/patient.html', {'patient': patient, 'appointments': appointments})
+        except Patient.DoesNotExist:
+            messages.error(request, 'Профиль пациента не найден')
+            return redirect('home')
     
     elif profile.role == UserRole.DOCTOR:
-        doctor = Doctor.objects.get(user=request.user)
-        appointments = Appointment.objects.filter(doctor=doctor).order_by('-date', '-time')
-        return render(request, 'cabinet/doctor.html', {'doctor': doctor, 'appointments': appointments})
+        try:
+            doctor = Doctor.objects.get(user=request.user)
+            appointments = Appointment.objects.filter(doctor=doctor)
+
+            # Получаем параметры фильтрации
+            search_query = request.GET.get('search', '')
+            status = request.GET.get('status', '')
+            date = request.GET.get('date', '')
+
+            # Применяем фильтры
+            if search_query:
+                appointments = appointments.filter(
+                    Q(patient__last_name__icontains=search_query) |
+                    Q(patient__first_name__icontains=search_query)
+                )
+            
+            if status:
+                appointments = appointments.filter(status=status)
+            
+            if date:
+                appointments = appointments.filter(date=date)
+
+            # Сортируем записи
+            appointments = appointments.order_by('-date', '-time')
+
+            context = {
+                'doctor': doctor,
+                'appointments': appointments,
+                'search_query': search_query,
+                'status': status,
+                'selected_date': date
+            }
+            
+            return render(request, 'cabinet/doctor.html', context)
+        except Doctor.DoesNotExist:
+            messages.error(request, 'Профиль врача не найден')
+            return redirect('home')
     
     elif profile.role == UserRole.ADMIN:
         departments_count = Department.objects.count()
@@ -397,3 +438,188 @@ def download_doctor_stats(request):
         ])
     
     return response
+
+@login_required
+def admin_users(request):
+    if not request.user.profile.role == UserRole.ADMIN:
+        raise PermissionDenied
+    
+    # Получаем параметры фильтрации и поиска
+    role_filter = request.GET.get('role')
+    search_query = request.GET.get('search')
+    
+    # Базовый запрос
+    users = User.objects.all()
+    
+    # Применяем фильтр по роли
+    if role_filter:
+        users = users.filter(profile__role=role_filter)
+    
+    # Применяем поиск по имени пользователя
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query)
+        )
+    
+    # Добавляем информацию о роли для каждого пользователя
+    users_with_roles = []
+    for user in users:
+        try:
+            profile = user.profile
+            role = profile.get_role_display()
+        except UserProfile.DoesNotExist:
+            role = 'Не назначена'
+        
+        users_with_roles.append({
+            'user': user,
+            'role': role
+        })
+    
+    return render(request, 'admin/users.html', {
+        'users': users_with_roles,
+        'roles': UserRole.choices,
+        'selected_role': role_filter,
+        'search_query': search_query
+    })
+
+@login_required
+def admin_departments(request):
+    if not request.user.profile.role == UserRole.ADMIN:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        floor = request.POST.get('floor')
+        room_number = request.POST.get('room_number')
+        
+        Department.objects.create(
+            name=name,
+            description=description,
+            floor=floor,
+            room_number=room_number
+        )
+        messages.success(request, 'Отделение успешно создано')
+        return redirect('admin_departments')
+    
+    departments = Department.objects.all()
+    return render(request, 'admin/departments.html', {'departments': departments})
+
+@login_required
+def admin_delete_department(request, department_id):
+    if not request.user.profile.role == UserRole.ADMIN:
+        raise PermissionDenied
+    
+    try:
+        department = Department.objects.get(code=department_id)
+        department.delete()
+        messages.success(request, 'Отделение успешно удалено')
+    except Department.DoesNotExist:
+        messages.error(request, 'Отделение не найдено')
+    
+    return redirect('admin_departments')
+
+@login_required
+def admin_edit_department(request, department_id):
+    if not request.user.profile.role == UserRole.ADMIN:
+        raise PermissionDenied
+    
+    try:
+        department = Department.objects.get(code=department_id)
+        
+        if request.method == 'POST':
+            department.name = request.POST.get('name')
+            department.description = request.POST.get('description')
+            department.floor = request.POST.get('floor')
+            department.room_number = request.POST.get('room_number')
+            department.save()
+            messages.success(request, 'Отделение успешно обновлено')
+            return redirect('admin_departments')
+        
+        return render(request, 'admin/edit_department.html', {'department': department})
+    except Department.DoesNotExist:
+        messages.error(request, 'Отделение не найдено')
+        return redirect('admin_departments')
+
+@login_required
+def admin_doctors(request):
+    if not request.user.profile.role == UserRole.ADMIN:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        middle_name = request.POST.get('middle_name')
+        specialization = request.POST.get('specialization')
+        experience_years = request.POST.get('experience_years')
+        department_code = request.POST.get('department')
+        
+        try:
+            department = Department.objects.get(code=department_code)
+            Doctor.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                middle_name=middle_name,
+                specialization=specialization,
+                experience_years=experience_years,
+                department=department
+            )
+            messages.success(request, 'Врач успешно добавлен')
+        except Department.DoesNotExist:
+            messages.error(request, 'Выбранное отделение не существует')
+    
+    doctors = Doctor.objects.all().order_by('last_name', 'first_name')
+    departments = Department.objects.all().order_by('name')
+    return render(request, 'admin/doctors.html', {
+        'doctors': doctors,
+        'departments': departments
+    })
+
+@login_required
+def admin_edit_doctor(request, doctor_id):
+    if not request.user.profile.role == UserRole.ADMIN:
+        raise PermissionDenied
+    
+    try:
+        doctor = Doctor.objects.get(code=doctor_id)
+    except Doctor.DoesNotExist:
+        raise Http404("Врач не найден")
+    
+    if request.method == 'POST':
+        doctor.first_name = request.POST.get('first_name')
+        doctor.last_name = request.POST.get('last_name')
+        doctor.middle_name = request.POST.get('middle_name')
+        doctor.specialization = request.POST.get('specialization')
+        doctor.experience_years = request.POST.get('experience_years')
+        department_code = request.POST.get('department')
+        
+        try:
+            department = Department.objects.get(code=department_code)
+            doctor.department = department
+            doctor.save()
+            messages.success(request, 'Данные врача успешно обновлены')
+            return redirect('admin_doctors')
+        except Department.DoesNotExist:
+            messages.error(request, 'Выбранное отделение не существует')
+    
+    departments = Department.objects.all().order_by('name')
+    return render(request, 'admin/edit_doctor.html', {
+        'doctor': doctor,
+        'departments': departments
+    })
+
+@login_required
+def admin_delete_doctor(request, doctor_id):
+    if not request.user.profile.role == UserRole.ADMIN:
+        raise PermissionDenied
+    
+    try:
+        doctor = Doctor.objects.get(code=doctor_id)
+        doctor.delete()
+        messages.success(request, 'Врач успешно удален')
+    except Doctor.DoesNotExist:
+        messages.error(request, 'Врач не найден')
+    
+    return redirect('admin_doctors')

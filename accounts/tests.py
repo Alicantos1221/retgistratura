@@ -1,78 +1,89 @@
 from django.test import TestCase
-from django.urls import reverse
-from unittest.mock import patch, MagicMock
-from .models import Driver, Trip, Profit
 from django.contrib.auth.models import User
-from datetime import date
+from .models import UserProfile, Doctor, Patient, Appointment, UserRole, Department
+from datetime import datetime, timedelta
 
-# Create your tests here.
-
-class ExportTripsTests(TestCase):
-
+class AppointmentTests(TestCase):
     def setUp(self):
-        # Создаем тестового пользователя
-        self.user = User.objects.create_user(username='testuser', password='testpass')
-        
-        # Создаем тестового водителя 
-        self.driver = Driver.objects.create(
-            user=self.user,
-            name='Test Driver',
-            license_issue_date=date.today()  
+        # Создаем тестовое отделение
+        self.department = Department.objects.create(
+            name='Терапевтическое отделение',
+            description='Тестовое отделение',
+            floor=1,
+            room_number='101'
         )
 
-        # Создаем тестовые поездки 
-        self.trip = MagicMock()  # Используем MagicMock для имитации объекта Trip
-        self.trip.start_date = '2025-01-01'
-        self.trip.route = MagicMock()  # Создаем mock для route
-        self.trip.route.departure_city = 'Москва'
-        self.trip.route.arrival_city = 'Санкт-Петербург'
-        self.trip.client = MagicMock()  # Создаем mock для client
-        self.trip.client.first_name = 'Иван'
-        self.trip.client.last_name = 'Иванов'
-        self.trip.cargo_weight = 100.0
-        self.trip.rating = 5
-        self.trip.feedback = 'Отличная поездка!'
-
-
-
-    @patch('accounts.views.TripDriver.objects.filter')
-    def test_export_trips_mock(self, mock_filter):
-        # Настраиваем mock для возвращения тестовых данных
-        mock_filter.return_value = [self.trip]
-
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('export_trips')) #получаем ответ на запрос для экспорта 
-
-        # Проверяем, что ответ имеет статус 200
-        self.assertEqual(response.status_code, 200)
-        # Проверяем, что ответ имеет правильный тип контента
-        self.assertEqual(response['Content-Type'], 'text/csv')
-        # Проверяем, что в ответе есть данные
-        self.assertIn('Дата'.encode('utf-8'), response.content)  # Проверяем, что заголовок "Дата" присутствует
-
-        # Убедитесь, что mock был вызван
-        mock_filter.assert_called_once_with(driver=self.driver)
-
-class CabinetViewTests(TestCase):
-
-    def setUp(self):
-        # Создаем тестового пользователя
-        self.user = User.objects.create_user(username='testuser', password='testpass')
-        
-        # Создаем тестового водителя с обязательным полем license_issue_date
-        self.driver = Driver.objects.create(
-            user=self.user,
-            name='Test Driver',
-            license_issue_date=date.today()  # Указываем дату выдачи прав
+        # Создаем тестового пользователя-пациента
+        self.patient_user = User.objects.create_user(
+            username='test_patient',
+            password='testpass123'
+        )
+        self.patient = Patient.objects.create(
+            user=self.patient_user,
+            last_name='Иванов',
+            first_name='Иван',
+            middle_name='Иванович',
+            birth_date='1990-01-01',
+            phone='+79991234567',
+            address='ул. Тестовая, 1',
+            insurance_number='1234567890123456'
         )
 
-    def test_cabinet_view(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('cabinet'))
+        # Создаем тестового пользователя-врача
+        self.doctor_user = User.objects.create_user(
+            username='test_doctor',
+            password='testpass123'
+        )
+        self.doctor = Doctor.objects.create(
+            user=self.doctor_user,
+            last_name='Петров',
+            first_name='Петр',
+            middle_name='Петрович',
+            specialization='Терапевт',
+            department=self.department,
+            experience_years=5
+        )
 
-        # Проверяем, что ответ имеет статус 200
-        self.assertEqual(response.status_code, 200)
+    def test_create_appointment(self):
+        """Тест создания записи на приём"""
+        # Создаем запись на завтрашний день
+        tomorrow = datetime.now().date() + timedelta(days=1)
+        appointment = Appointment.objects.create(
+            patient=self.patient,
+            doctor=self.doctor,
+            date=tomorrow,
+            time='10:00',
+            symptoms='Головная боль, температура'
+        )
 
-        # Проверяем, что на странице присутствует имя пользователя
-        self.assertContains(response, 'testuser')
+        # Проверяем, что запись создана корректно
+        self.assertEqual(appointment.patient, self.patient)
+        self.assertEqual(appointment.doctor, self.doctor)
+        self.assertEqual(appointment.date, tomorrow)
+        self.assertEqual(appointment.time, '10:00')
+        self.assertEqual(appointment.symptoms, 'Головная боль, температура')
+        self.assertEqual(appointment.status, 'SCHEDULED')
 
+    def test_complete_appointment(self):
+        """Тест завершения приёма врачом"""
+        # Создаем запись
+        tomorrow = datetime.now().date() + timedelta(days=1)
+        appointment = Appointment.objects.create(
+            patient=self.patient,
+            doctor=self.doctor,
+            date=tomorrow,
+            time='10:00',
+            symptoms='Головная боль, температура'
+        )
+
+        # Завершаем приём
+        appointment.status = 'COMPLETED'
+        appointment.diagnosis = 'ОРВИ'
+        appointment.prescription = 'Постельный режим, обильное питье'
+        appointment.save()
+
+        # Проверяем, что приём завершен корректно
+        updated_appointment = Appointment.objects.get(code=appointment.code)
+        self.assertEqual(updated_appointment.status, 'COMPLETED')
+        self.assertEqual(updated_appointment.diagnosis, 'ОРВИ')
+        self.assertEqual(updated_appointment.prescription, 'Постельный режим, обильное питье') 

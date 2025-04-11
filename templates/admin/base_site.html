@@ -1,0 +1,285 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    :root {
+        --primary-color: #4a90e2;
+        --primary-dark: #357abd;
+        --secondary-color: #f8f9fa;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --text-color: #333;
+        --text-light: #666;
+        --border-color: #e0e0e0;
+    }
+
+    /* Общие стили */
+    body {
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: #f5f6fa;
+    }
+
+    /* Шапка */
+    #header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    #branding h1 {
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+    #branding h1 a {
+        color: white;
+        text-decoration: none;
+    }
+
+    #user-tools {
+        font-size: 0.9rem;
+    }
+
+    #user-tools a {
+        color: white;
+        text-decoration: none;
+        margin-left: 1rem;
+        opacity: 0.9;
+        transition: opacity 0.3s;
+    }
+
+    #user-tools a:hover {
+        opacity: 1;
+    }
+
+    /* Боковая панель */
+    .module h2, .module caption {
+        background: white;
+        color: var(--primary-color);
+        padding: 1rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .module {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    /* Таблицы */
+    #changelist table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #changelist table thead th {
+        background: var(--secondary-color);
+        color: var(--text-color);
+        font-weight: 600;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    #changelist table tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    #changelist table tbody tr:hover {
+        background: var(--secondary-color);
+    }
+
+    /* Формы */
+    .form-row {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-row label {
+        color: var(--text-color);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-row input, .form-row select, .form-row textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    }
+
+    /* Кнопки */
+    .button, input[type=submit], input[type=button], .submit-row input {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    .button.default {
+        background: var(--success-color);
+    }
+
+    .deletelink {
+        background: var(--danger-color);
+    }
+
+    /* Фильтры */
+    #changelist-filter {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    #changelist-filter h2 {
+        font-size: 1.1rem;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+    }
+
+    #changelist-filter ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    #changelist-filter li {
+        margin-bottom: 0.5rem;
+    }
+
+    #changelist-filter a {
+        color: var(--text-color);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    #changelist-filter a:hover {
+        color: var(--primary-color);
+    }
+
+    /* Пагинация */
+    .paginator {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .paginator a, .paginator span {
+        padding: 0.5rem 1rem;
+        margin: 0 0.25rem;
+        border-radius: 4px;
+        color: var(--text-color);
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .paginator a:hover {
+        background: var(--secondary-color);
+        color: var(--primary-color);
+    }
+
+    .paginator .this-page {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    /* Сообщения */
+    .messagelist {
+        padding: 0;
+        margin: 1rem 0;
+        list-style: none;
+    }
+
+    .messagelist li {
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 4px;
+    }
+
+    .messagelist li.success {
+        background: var(--success-color);
+        color: white;
+    }
+
+    .messagelist li.error {
+        background: var(--danger-color);
+        color: white;
+    }
+
+    .messagelist li.warning {
+        background: var(--warning-color);
+        color: var(--text-color);
+    }
+
+    .messagelist li.info {
+        background: var(--info-color);
+        color: white;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 1024px) {
+        #changelist-filter {
+            margin-top: 1rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        #header {
+            padding: 1rem;
+        }
+
+        #branding h1 {
+            font-size: 1.5rem;
+        }
+
+        .form-row {
+            padding: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <i class="fas fa-hospital-alt"></i>
+        {{ site_header|default:_('Медицинский Центр - Панель управления') }}
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %} 

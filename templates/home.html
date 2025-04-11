@@ -178,6 +178,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const departmentSelect = document.getElementById('department');
     const doctorSelect = document.getElementById('doctor');
     const appointmentForm = document.getElementById('appointmentForm');
+    const dateInput = document.getElementById('date');
+
+    // Устанавливаем минимальную дату на завтрашний день
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    dateInput.min = tomorrowStr;
+    dateInput.value = tomorrowStr;
 
     departmentSelect.addEventListener('change', function() {
         const departmentId = this.value;
